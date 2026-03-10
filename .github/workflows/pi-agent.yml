@@ -22,6 +22,7 @@ jobs:
         with:
           node-version: "20"
       - run: npm install -g @mariozechner/pi-coding-agent
+      - run: npm ci && npx playwright install --with-deps chromium
 
       - name: Collect issue context
         id: issue
@@ -118,6 +119,7 @@ jobs:
         with:
           node-version: "20"
       - run: npm install -g @mariozechner/pi-coding-agent
+      - run: npm ci && npx playwright install --with-deps chromium
 
       - name: Collect PR context
         uses: actions/github-script@v7

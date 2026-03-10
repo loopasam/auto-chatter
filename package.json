@@ -6,9 +6,12 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "pretest": "tsc",
-    "test": "node --test"
+    "test": "node --test && npx playwright test",
+    "test:unit": "node --test",
+    "test:e2e": "npx playwright test"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@types/node": "^25.4.0",
     "typescript": "^5.9.3"
   }
