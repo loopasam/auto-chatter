@@ -3,10 +3,13 @@ name: Pi Coding Agent
 on:
   issues:
     types: [labeled]
+  issue_comment:
+    types: [created]
 
 jobs:
-  pi-agent:
-    if: github.event.label.name == 'pi-agent'
+  # Trigger 1: New issue labeled "pi-agent"
+  from-issue:
+    if: github.event_name == 'issues' && github.event.label.name == 'pi-agent'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -32,7 +35,6 @@ jobs:
           script: |
             const issue = context.payload.issue;
 
-            // Fetch all comments
             const comments = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -102,7 +104,6 @@ jobs:
               base: 'main',
             });
 
-            // Comment on the issue
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -120,4 +121,162 @@ jobs:
               repo: context.repo.repo,
               issue_number: context.payload.issue.number,
               body: `❌ Pi agent failed to process this issue. Check the [workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.`,
+            });
+
+  # Trigger 2: Comment on a PR created by pi-agent
+  from-pr-comment:
+    if: >-
+      github.event_name == 'issue_comment'
+      && github.event.issue.pull_request
+      && startsWith(github.event.issue.title, '[pi-agent]')
+      && github.event.comment.user.login != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Get PR details
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.issue.number,
+            });
+
+            core.setOutput('branch', pr.data.head.ref);
+            core.setOutput('number', pr.data.number);
+
+            // Extract linked issue number from PR body (looks for #N)
+            const match = pr.data.body?.match(/#(\d+)/);
+            core.setOutput('issue_number', match ? match[1] : '');
+
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.pr.outputs.branch }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install pi coding agent
+        run: npm install -g @mariozechner/pi-coding-agent
+
+      - name: Collect full context
+        id: context
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = ${{ steps.pr.outputs.number }};
+            const issueNumber = ${{ steps.pr.outputs.issue_number || 0 }};
+
+            let prompt = '';
+
+            // 1. Original issue context (if linked)
+            if (issueNumber) {
+              const issue = await github.rest.issues.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+              });
+              prompt += `# Original Issue #${issueNumber}: ${issue.data.title}\n\n`;
+              prompt += `${issue.data.body || '(no description)'}\n\n`;
+            }
+
+            // 2. PR diff summary
+            const diff = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+              mediaType: { format: 'diff' },
+            });
+            prompt += `# Current PR #${prNumber} Diff\n\n`;
+            prompt += '```diff\n' + diff.data + '\n```\n\n';
+
+            // 3. All PR review comments (inline code comments)
+            const reviewComments = await github.rest.pulls.listReviewComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+            });
+            if (reviewComments.data.length > 0) {
+              prompt += `# PR Review Comments\n\n`;
+              for (const c of reviewComments.data) {
+                prompt += `### @${c.user.login} on \`${c.path}\` (line ${c.line || c.original_line || '?'})\n\n`;
+                prompt += `${c.body}\n\n`;
+              }
+            }
+
+            // 4. PR conversation comments (issue-style comments on the PR)
+            const prComments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+            if (prComments.data.length > 0) {
+              prompt += `# PR Conversation\n\n`;
+              for (const c of prComments.data) {
+                prompt += `### @${c.user.login} (${c.created_at})\n\n${c.body}\n\n`;
+              }
+            }
+
+            prompt += `---\n\n`;
+            prompt += `Address the review feedback above. The code is already checked out on the PR branch.\n`;
+            prompt += `Follow the AGENTS.md instructions strictly, especially the TDD workflow.\n`;
+            prompt += `When done, summarize what you changed and what tests you added or updated.\n`;
+
+            const fs = require('fs');
+            fs.writeFileSync('/tmp/pr-prompt.md', prompt);
+
+      - name: Run pi agent
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          pi --no-session -p @/tmp/pr-prompt.md
+
+      - name: Commit and push changes
+        id: push
+        run: |
+          git config user.name "pi-agent[bot]"
+          git config user.email "pi-agent[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "No changes to commit"
+          else
+            git commit -m "fix: address PR #${{ steps.pr.outputs.number }} review feedback
+
+            Automated by pi coding agent."
+            git push origin ${{ steps.pr.outputs.branch }}
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Comment on PR
+        if: steps.push.outputs.has_changes == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: ${{ steps.pr.outputs.number }},
+              body: `🤖 Pi agent has pushed updates addressing the review feedback. [Workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`,
+            });
+
+      - name: Comment on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: ${{ steps.pr.outputs.number }},
+              body: `❌ Pi agent failed to address the review feedback. Check the [workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.`,
             });
