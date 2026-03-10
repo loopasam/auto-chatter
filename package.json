@@ -1,0 +1,15 @@
+{
+  "name": "auto-chatter",
+  "version": "1.0.0",
+  "description": "PoC for automated code development using GitHub Issues + [pi coding agent](https://github.com/badlogic/pi-mono) via GitHub Actions.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^30.3.0"
+  }
+}

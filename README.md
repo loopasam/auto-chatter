@@ -1,3 +1,5 @@
+> **This project is developing a web app in JavaScript.**
+
 # auto-chatter
 
 PoC for automated code development using GitHub Issues + [pi coding agent](https://github.com/badlogic/pi-mono) via GitHub Actions.
