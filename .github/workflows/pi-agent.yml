@@ -74,6 +74,17 @@ jobs:
         run: |
           pi --no-session -p @/tmp/issue-prompt.md
 
+      - name: Run tests
+        run: |
+          if [ -f package.json ] && grep -q '"test"' package.json; then
+            npm test
+          elif [ -f run_tests.sh ]; then
+            chmod +x run_tests.sh
+            ./run_tests.sh
+          else
+            echo "No test runner found — skipping"
+          fi
+
       - name: Commit and push changes
         id: push
         run: |
@@ -239,6 +250,17 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           pi --no-session -p @/tmp/pr-prompt.md
+
+      - name: Run tests
+        run: |
+          if [ -f package.json ] && grep -q '"test"' package.json; then
+            npm test
+          elif [ -f run_tests.sh ]; then
+            chmod +x run_tests.sh
+            ./run_tests.sh
+          else
+            echo "No test runner found — skipping"
+          fi
 
       - name: Commit and push changes
         id: push

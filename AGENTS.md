@@ -22,6 +22,12 @@
 - Prefer clear names over comments.
 - Don't over-engineer — implement what's needed.
 
+## Test Runner
+- If a `package.json` exists with a `"test"` script, use `npm test` to run all tests.
+- Otherwise use `./run_tests.sh` if it exists.
+- **Always run the full test suite as your final step** before declaring work complete.
+- If tests fail, fix the code until they pass. Do not stop with failing tests.
+
 ## Commit Discipline
 - All code must have passing tests before considering work complete.
 - Summarize the tests you wrote and what they cover.
