@@ -49,6 +49,18 @@ Ensure GitHub Actions has write permissions:
 | `.github/workflows/pi-agent.yml` | The GitHub Actions workflow |
 | `AGENTS.md` | Instructions for pi (TDD emphasis) |
 
+## Running Tests
+
+This project uses Node.js's built-in test runner. All test files live in the `tests/` directory.
+
+```bash
+npm test
+```
+
+This runs `node --test`, which discovers and executes all `*.test.mjs` files under `tests/`.
+
+No extra dependencies are needed — just Node.js 18+.
+
 ## Contributing
 
 Feel free to open issues describing what you'd like built — the pi agent will pick them up automatically.
