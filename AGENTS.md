@@ -14,6 +14,9 @@
 - Run the full test suite after each green step to catch regressions.
 - If you discover a bug or edge case, write a test for it first before fixing.
 
+## Off-Limits Files
+- **Never** modify files under `.github/workflows/`. The GitHub Actions token cannot push workflow changes.
+
 ## Code Style
 - Keep functions small and focused.
 - Prefer clear names over comments.
