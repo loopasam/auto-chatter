@@ -84,7 +84,7 @@ jobs:
 
             Automated by pi coding agent.
             Closes #${{ steps.issue.outputs.number }}"
-            git push origin ${{ steps.issue.outputs.branch }}
+            git push --force origin ${{ steps.issue.outputs.branch }}
             echo "has_changes=true" >> "$GITHUB_OUTPUT"
           fi
 
