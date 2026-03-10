@@ -48,3 +48,7 @@ Ensure GitHub Actions has write permissions:
 |------|---------|
 | `.github/workflows/pi-agent.yml` | The GitHub Actions workflow |
 | `AGENTS.md` | Instructions for pi (TDD emphasis) |
+
+## Contributing
+
+Feel free to open issues describing what you'd like built — the pi agent will pick them up automatically.
