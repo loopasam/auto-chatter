@@ -69,6 +69,14 @@ describe('web server', () => {
     }
   });
 
+  it('GET /api/ping returns 200 with { pong: true }', async () => {
+    const res = await fetch(`${baseUrl}/api/ping`);
+    assert.equal(res.status, 200);
+    assert.match(res.headers.get('content-type'), /application\/json/);
+    const body = await res.json();
+    assert.deepEqual(body, { pong: true });
+  });
+
   it('GET /unknown returns HTML (SPA fallback)', async () => {
     const res = await fetch(`${baseUrl}/unknown`);
     assert.equal(res.status, 200);
