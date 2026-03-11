@@ -16,6 +16,10 @@ export async function createApp(): Promise<express.Express> {
     res.json({ status: 'ok', uptime: process.uptime() });
   });
 
+  app.get('/api/ping', (_req, res) => {
+    res.json({ pong: true });
+  });
+
   app.get('/api/products', (_req, res) => {
     res.json([
       { id: 1, name: 'Basic Plan', description: 'Get started with auto-chatter.', price: 9.99 },
