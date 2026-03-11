@@ -40,3 +40,4 @@ blob-report/
 # Misc
 .cache/
 tmp/
+nul
