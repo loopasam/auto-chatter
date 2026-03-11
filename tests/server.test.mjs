@@ -89,6 +89,8 @@ describe('web server', () => {
     assert.equal(body.version, pkg.version);
     assert.equal(typeof body.name, 'string');
     assert.equal(body.name, pkg.name);
+    assert.equal(typeof body.node, 'string');
+    assert.equal(body.node, process.version);
   });
 
   it('GET /unknown returns HTML (SPA fallback)', async () => {
