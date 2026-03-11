@@ -48,17 +48,14 @@ describe('web server', () => {
     assert.ok(body.uptime >= 0);
   });
 
-  it('GET /unknown returns 404', async () => {
+  it('GET /unknown returns HTML (SPA fallback)', async () => {
     const res = await fetch(`${baseUrl}/unknown`);
-    assert.equal(res.status, 404);
-    const body = await res.json();
-    assert.equal(body.error, 'Not Found');
+    assert.equal(res.status, 200);
+    assert.match(res.headers.get('content-type'), /text\/html/);
   });
 
-  it('responds with JSON content-type on API routes', async () => {
-    for (const path of ['/health', '/nonexistent']) {
-      const res = await fetch(`${baseUrl}${path}`);
-      assert.match(res.headers.get('content-type'), /application\/json/);
-    }
+  it('GET /health responds with JSON content-type', async () => {
+    const res = await fetch(`${baseUrl}/health`);
+    assert.match(res.headers.get('content-type'), /application\/json/);
   });
 });

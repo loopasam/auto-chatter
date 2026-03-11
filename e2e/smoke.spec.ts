@@ -14,6 +14,24 @@ test('home page renders auto-chatter heading via React', async ({ page }) => {
   await expect(heading).toHaveText('auto-chatter');
 });
 
+test('home page fetches and displays server status', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('text=Status:')).toBeVisible();
+  await expect(page.locator('text=Uptime:')).toBeVisible();
+});
+
+test('about page renders via client-side navigation', async ({ page }) => {
+  await page.goto('/');
+  await page.click('a[href="/about"]');
+  await expect(page.locator('h1')).toHaveText('About');
+  await expect(page.locator('text=chat application')).toBeVisible();
+});
+
+test('about page renders via direct navigation', async ({ page }) => {
+  await page.goto('/about');
+  await expect(page.locator('h1')).toHaveText('About');
+});
+
 test('GET /health returns ok', async ({ request }) => {
   const res = await request.get('/health');
   expect(res.status()).toBe(200);
@@ -22,7 +40,8 @@ test('GET /health returns ok', async ({ request }) => {
   expect(typeof body.uptime).toBe('number');
 });
 
-test('GET /unknown returns 404', async ({ request }) => {
+test('GET /unknown returns HTML (SPA fallback)', async ({ request }) => {
   const res = await request.get('/unknown');
-  expect(res.status()).toBe(404);
+  expect(res.status()).toBe(200);
+  expect(res.headers()['content-type']).toContain('text/html');
 });

@@ -28,15 +28,11 @@ export async function createApp(): Promise<express.Express> {
     // Production: serve pre-built client assets
     app.use(express.static(CLIENT_DIR));
 
-    app.get('/', (_req, res) => {
+    // SPA fallback — serve index.html for any non-API route
+    app.get('/{*splat}', (_req, res) => {
       res.sendFile(path.join(CLIENT_DIR, 'index.html'));
     });
   }
-
-  // 404 fallback
-  app.use((_req, res) => {
-    res.status(404).json({ error: 'Not Found' });
-  });
 
   return app;
 }
