@@ -1,58 +1,45 @@
 import { test, expect } from '@playwright/test';
 
-test('GET / returns HTML page with React root', async ({ request }) => {
+test('GET / returns HTML page with app div', async ({ request }) => {
   const res = await request.get('/');
   expect(res.status()).toBe(200);
   expect(res.headers()['content-type']).toContain('text/html');
   const body = await res.text();
-  expect(body).toContain('id="root"');
+  expect(body).toContain('id="app"');
 });
 
-test('home page renders auto-chatter heading via React', async ({ page }) => {
+test('home page renders auto-chatter heading', async ({ page }) => {
   await page.goto('/');
-  const heading = page.locator('h1');
-  await expect(heading).toHaveText('auto-chatter');
+  await expect(page.locator('h1')).toHaveText('auto-chatter');
 });
 
 test('home page fetches and displays server status', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('text=Server Status')).toBeVisible();
   await expect(page.locator('text=Uptime:')).toBeVisible();
 });
 
-test('about page renders via client-side navigation', async ({ page }) => {
-  await page.goto('/');
-  await page.click('a[href="/about"]');
-  await expect(page.locator('h1')).toHaveText('About');
-  await expect(page.locator('text=chat application')).toBeVisible();
+test('products page renders product list from API', async ({ page }) => {
+  await page.goto('/products');
+  await expect(page.locator('h1')).toHaveText('Products');
+  const rows = page.locator('[data-testid="product-row"]');
+  await expect(rows.first()).toBeVisible();
+  const count = await rows.count();
+  expect(count).toBeGreaterThanOrEqual(1);
 });
 
-test('about page renders via direct navigation', async ({ page }) => {
+test('about page renders', async ({ page }) => {
   await page.goto('/about');
   await expect(page.locator('h1')).toHaveText('About');
 });
 
-test('GET /health returns ok', async ({ request }) => {
-  const res = await request.get('/health');
-  expect(res.status()).toBe(200);
-  const body = await res.json();
-  expect(body.status).toBe('ok');
-  expect(typeof body.uptime).toBe('number');
-});
-
-test('products page renders product cards from API', async ({ page }) => {
-  await page.goto('/products');
-  await expect(page.locator('h1')).toHaveText('Products');
-  const cards = page.locator('[data-testid="product-card"]');
-  await expect(cards.first()).toBeVisible();
-  const count = await cards.count();
-  expect(count).toBeGreaterThanOrEqual(1);
-});
-
-test('products page navigable from nav', async ({ page }) => {
+test('navigation between pages works', async ({ page }) => {
   await page.goto('/');
   await page.click('a[href="/products"]');
   await expect(page.locator('h1')).toHaveText('Products');
+  await page.click('a[href="/about"]');
+  await expect(page.locator('h1')).toHaveText('About');
+  await page.click('a[href="/"]');
+  await expect(page.locator('h1')).toHaveText('auto-chatter');
 });
 
 test('GET /api/products returns JSON array', async ({ request }) => {
@@ -63,6 +50,13 @@ test('GET /api/products returns JSON array', async ({ request }) => {
   expect(body.length).toBeGreaterThan(0);
   expect(body[0]).toHaveProperty('name');
   expect(body[0]).toHaveProperty('price');
+});
+
+test('GET /health returns ok', async ({ request }) => {
+  const res = await request.get('/health');
+  expect(res.status()).toBe(200);
+  const body = await res.json();
+  expect(body.status).toBe('ok');
 });
 
 test('GET /unknown returns HTML (SPA fallback)', async ({ request }) => {

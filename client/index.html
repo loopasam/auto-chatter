@@ -4,9 +4,17 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>auto-chatter</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; }
+    body { font-family: system-ui, sans-serif; color: #333; }
+    a { color: inherit; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+  <script type="module" src="/src/app-shell.ts"></script>
 </head>
 <body>
-  <div id="root"></div>
-  <script type="module" src="/src/main.tsx"></script>
+  <div id="app">
+    <app-shell></app-shell>
+  </div>
 </body>
 </html>

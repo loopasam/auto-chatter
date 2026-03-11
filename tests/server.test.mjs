@@ -27,11 +27,11 @@ describe('web server', () => {
     assert.match(res.headers.get('content-type'), /text\/html/);
   });
 
-  it('GET / returns HTML page with root div and React entry', async () => {
+  it('GET / returns HTML page with root div', async () => {
     const res = await fetch(`${baseUrl}/`);
     const body = await res.text();
     assert.match(body, /<!doctype html>/i);
-    assert.match(body, /id="root"/);
+    assert.match(body, /id="app"/);
   });
 
   it('GET /health returns 200 with status ok', async () => {
@@ -46,17 +46,6 @@ describe('web server', () => {
     const body = await res.json();
     assert.equal(typeof body.uptime, 'number');
     assert.ok(body.uptime >= 0);
-  });
-
-  it('GET /unknown returns HTML (SPA fallback)', async () => {
-    const res = await fetch(`${baseUrl}/unknown`);
-    assert.equal(res.status, 200);
-    assert.match(res.headers.get('content-type'), /text\/html/);
-  });
-
-  it('GET /health responds with JSON content-type', async () => {
-    const res = await fetch(`${baseUrl}/health`);
-    assert.match(res.headers.get('content-type'), /application\/json/);
   });
 
   it('GET /api/products returns 200 with JSON array', async () => {
@@ -78,5 +67,16 @@ describe('web server', () => {
       assert.equal(typeof product.price, 'number');
       assert.ok(product.price > 0);
     }
+  });
+
+  it('GET /unknown returns HTML (SPA fallback)', async () => {
+    const res = await fetch(`${baseUrl}/unknown`);
+    assert.equal(res.status, 200);
+    assert.match(res.headers.get('content-type'), /text\/html/);
+  });
+
+  it('GET /health responds with JSON content-type', async () => {
+    const res = await fetch(`${baseUrl}/health`);
+    assert.match(res.headers.get('content-type'), /application\/json/);
   });
 });

@@ -5,14 +5,11 @@
     "moduleResolution": "bundler",
     "strict": true,
     "esModuleInterop": true,
-    "jsx": "react-jsx",
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
     "declaration": false,
     "outDir": "dist",
-    "rootDir": "src",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    }
+    "rootDir": "src"
   },
   "include": ["src"]
 }
