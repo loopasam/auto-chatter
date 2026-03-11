@@ -17,6 +17,22 @@
 ## Off-Limits Files
 - **Never** modify files under `.github/workflows/`. The GitHub Actions token cannot push workflow changes.
 
+## GitHub Workflow Architecture
+
+There are two separate workflows:
+
+1. **`ci.yml`** — Runs on every PR to `main`. Typecheck, build, unit tests, e2e tests. Same gates for human and agent PRs.
+2. **`pi-agent.yml`** — Agent orchestration only. Triggered by labels on issues and comments on agent PRs.
+
+### Labels
+| Label | Meaning |
+|---|---|
+| `agent:implement` | Agent creates a branch, implements the issue, and opens a PR. |
+| `agent:revise` | (Future) Agent picks up PR review feedback and pushes fixes. |
+
+### Branch Convention
+Agent branches are named `agent/issue-{number}`.
+
 ## Code Style
 - Keep functions small and focused.
 - Prefer clear names over comments.

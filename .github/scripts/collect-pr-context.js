@@ -1,5 +1,9 @@
 // Collects original issue, PR diff, review comments, and conversation into a prompt file.
-// Expects steps.pr.outputs to be passed as env vars: PR_NUMBER, ISSUE_NUMBER
+// Expects env vars: PR_NUMBER, ISSUE_NUMBER
+
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
 
 module.exports = async ({ github, context, core }) => {
   const prNumber = parseInt(process.env.PR_NUMBER);
@@ -58,11 +62,11 @@ module.exports = async ({ github, context, core }) => {
   prompt += `---\n\n`;
   prompt += `Address the review feedback above. The code is already checked out on the PR branch.\n`;
   prompt += `Follow the AGENTS.md instructions strictly, especially the TDD workflow.\n\n`;
-  prompt += `When you are completely done, write a file called \`/tmp/pi-summary.md\` with a detailed description of:\n`;
+  prompt += `When you are completely done, write a file called \`${path.join(os.tmpdir(), 'pi-summary.md')}\` with a detailed description of:\n`;
   prompt += `- **What** you changed and why\n`;
   prompt += `- **How** it works (briefly)\n`;
   prompt += `- **Tests** you wrote or updated and what they cover\n`;
   prompt += `- **Decisions** you made and trade-offs if any\n`;
 
-  require('fs').writeFileSync('/tmp/pr-prompt.md', prompt);
+  fs.writeFileSync(path.join(os.tmpdir(), 'pr-prompt.md'), prompt);
 };

@@ -1,11 +1,14 @@
 // Creates a PR and comments on the linked issue.
 // Expects env: BRANCH, ISSUE_NUMBER, ISSUE_TITLE
 
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+
 module.exports = async ({ github, context, core }) => {
-  const fs = require('fs');
   let summary = '';
   try {
-    summary = fs.readFileSync('/tmp/pi-summary.md', 'utf-8');
+    summary = fs.readFileSync(path.join(os.tmpdir(), 'pi-summary.md'), 'utf-8');
   } catch {
     summary = '(no summary generated)';
   }

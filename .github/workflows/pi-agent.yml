@@ -1,4 +1,4 @@
-name: Pi Coding Agent
+name: Pi Agent
 
 on:
   issues:
@@ -7,9 +7,11 @@ on:
     types: [created]
 
 jobs:
-  # Trigger 1: New issue labeled "pi-agent"
-  from-issue:
-    if: github.event_name == 'issues' && github.event.label.name == 'pi-agent'
+  # ── Implement from issue ──────────────────────────────────
+  implement:
+    if: >-
+      github.event_name == 'issues'
+      && github.event.label.name == 'agent:implement'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -23,15 +25,12 @@ jobs:
           node-version: "20"
           cache: npm
 
-      - name: Cache global npm and Playwright
+      - name: Cache Playwright browsers
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.npm
-            ~/Library/Caches/ms-playwright
-            ~/.cache/ms-playwright
-          key: ${{ runner.os }}-deps-${{ hashFiles('package-lock.json') }}
-          restore-keys: ${{ runner.os }}-deps-
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+          restore-keys: ${{ runner.os }}-playwright-
 
       - run: npm install -g @mariozechner/pi-coding-agent
       - run: npm ci && npx playwright install --with-deps chromium
@@ -53,10 +52,9 @@ jobs:
       - name: Run pi agent
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: pi --no-session -p @/tmp/issue-prompt.md
-
-      - name: Run tests
-        run: ./.github/scripts/run-tests.sh
+        run: |
+          PROMPT_FILE="$(node -e "const p=require('path'),o=require('os');console.log(p.join(o.tmpdir(),'issue-prompt.md'))")"
+          pi --no-session -p "@${PROMPT_FILE}"
 
       - name: Commit and push
         id: push
@@ -67,8 +65,8 @@ jobs:
           else
             git commit -m "feat: implement issue #${{ steps.issue.outputs.number }}
 
-            Automated by pi coding agent.
-            Closes #${{ steps.issue.outputs.number }}"
+          Automated by pi coding agent.
+          Closes #${{ steps.issue.outputs.number }}"
             git push --force origin ${{ steps.issue.outputs.branch }}
             echo "has_changes=true" >> "$GITHUB_OUTPUT"
           fi
@@ -95,8 +93,8 @@ jobs:
             const fn = require('./.github/scripts/comment-on-failure.js');
             await fn({ github, context, core });
 
-  # Trigger 2: Comment on a PR created by pi-agent
-  from-pr-comment:
+  # ── Revise from PR comment ────────────────────────────────
+  revise:
     if: >-
       github.event_name == 'issue_comment'
       && github.event.issue.pull_request
@@ -132,15 +130,12 @@ jobs:
           node-version: "20"
           cache: npm
 
-      - name: Cache global npm and Playwright
+      - name: Cache Playwright browsers
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.npm
-            ~/Library/Caches/ms-playwright
-            ~/.cache/ms-playwright
-          key: ${{ runner.os }}-deps-${{ hashFiles('package-lock.json') }}
-          restore-keys: ${{ runner.os }}-deps-
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+          restore-keys: ${{ runner.os }}-playwright-
 
       - run: npm install -g @mariozechner/pi-coding-agent
       - run: npm ci && npx playwright install --with-deps chromium
@@ -158,10 +153,9 @@ jobs:
       - name: Run pi agent
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: pi --no-session -p @/tmp/pr-prompt.md
-
-      - name: Run tests
-        run: ./.github/scripts/run-tests.sh
+        run: |
+          PROMPT_FILE="$(node -e "const p=require('path'),o=require('os');console.log(p.join(o.tmpdir(),'pr-prompt.md'))")"
+          pi --no-session -p "@${PROMPT_FILE}"
 
       - name: Commit and push
         id: push
@@ -174,7 +168,7 @@ jobs:
           else
             git commit -m "fix: address PR #${{ steps.pr.outputs.number }} review feedback
 
-            Automated by pi coding agent."
+          Automated by pi coding agent."
             git push origin ${{ steps.pr.outputs.branch }}
             echo "has_changes=true" >> "$GITHUB_OUTPUT"
           fi

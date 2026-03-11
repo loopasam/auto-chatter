@@ -1,0 +1,54 @@
+name: Agent Task
+description: Define a task for the coding agent to implement
+labels: ["agent-task"]
+body:
+  - type: dropdown
+    id: task-type
+    attributes:
+      label: Task Type
+      options:
+        - feature
+        - bugfix
+        - refactor
+        - test
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What needs to happen? Be specific about behavior.
+      placeholder: "When a user clicks X, the system should Y..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Concrete, testable conditions that must be true when done.
+      placeholder: |
+        - [ ] API returns 200 with valid payload
+        - [ ] Error case returns 422 with message
+        - [ ] Existing tests still pass
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope-hints
+    attributes:
+      label: Scope / File Hints
+      description: Optional. Point the agent to relevant files, modules, or patterns.
+      placeholder: "See src/api/users.ts and the pattern in src/api/posts.ts"
+    validations:
+      required: false
+
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints
+      description: Optional. Anything the agent should NOT do, or must preserve.
+      placeholder: "Do not modify the auth middleware. Keep backward compat on the API."
+    validations:
+      required: false
