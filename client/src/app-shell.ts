@@ -4,6 +4,7 @@ import Navigo from 'navigo';
 import './pages/home-page.js';
 import './pages/products-page.js';
 import './pages/about-page.js';
+import './pages/demo-page.js';
 
 @customElement('app-shell')
 export class AppShell extends LitElement {
@@ -39,6 +40,7 @@ export class AppShell extends LitElement {
       .on('/', () => { this._page = 'home'; })
       .on('/products', () => { this._page = 'products'; })
       .on('/about', () => { this._page = 'about'; })
+      .on('/demo', () => { this._page = 'demo'; })
       .resolve();
   }
 
@@ -60,6 +62,8 @@ export class AppShell extends LitElement {
            @click=${(e: Event) => this._navigate(e, '/products')}>Products</a>
         <a href="/about" class=${this._page === 'about' ? 'active' : ''}
            @click=${(e: Event) => this._navigate(e, '/about')}>About</a>
+        <a href="/demo" class=${this._page === 'demo' ? 'active' : ''}
+           @click=${(e: Event) => this._navigate(e, '/demo')}>Demo</a>
       </nav>
       <main>
         ${this._renderPage()}
@@ -71,6 +75,7 @@ export class AppShell extends LitElement {
     switch (this._page) {
       case 'products': return html`<products-page></products-page>`;
       case 'about': return html`<about-page></about-page>`;
+      case 'demo': return html`<demo-page></demo-page>`;
       default: return html`<home-page></home-page>`;
     }
   }

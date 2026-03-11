@@ -59,6 +59,30 @@ test('GET /health returns ok', async ({ request }) => {
   expect(body.status).toBe('ok');
 });
 
+test('demo page renders Shoelace components', async ({ page }) => {
+  await page.goto('/demo');
+  await expect(page.locator('h1')).toHaveText('Component Demo');
+});
+
+test('demo page has a multi-select dropdown', async ({ page }) => {
+  await page.goto('/demo');
+  const select = page.locator('sl-select');
+  await expect(select).toBeVisible();
+});
+
+test('demo page has alert, dialog, and rating components', async ({ page }) => {
+  await page.goto('/demo');
+  await expect(page.locator('sl-alert')).toBeVisible();
+  await expect(page.locator('sl-rating')).toBeVisible();
+  await expect(page.locator('sl-button:has-text("Open Dialog")')).toBeVisible();
+});
+
+test('demo page navigable from nav', async ({ page }) => {
+  await page.goto('/');
+  await page.click('a[href="/demo"]');
+  await expect(page.locator('h1')).toHaveText('Component Demo');
+});
+
 test('GET /unknown returns HTML (SPA fallback)', async ({ request }) => {
   const res = await request.get('/unknown');
   expect(res.status()).toBe(200);

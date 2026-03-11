@@ -10,6 +10,11 @@
       "source": "shadcn/ui",
       "sourceType": "github",
       "computedHash": "b1cc1defe03f0e8f78652b7d20e4d4e6421babc2b45835d4f361afe684dc47a2"
+    },
+    "webawesome": {
+      "source": "C:\\Users\\scr\\git\\auto-chatter\\node_modules\\@awesome.me\\webawesome\\dist\\skills\\webawesome",
+      "sourceType": "local",
+      "computedHash": "f46ee156842200187135f7c1b0478c14ee3d1bc41a4f4d810f8c6f0651b4801f"
     }
   }
 }
