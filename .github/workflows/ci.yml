@@ -36,7 +36,7 @@ jobs:
           node-version: "20"
           cache: npm
       - run: npm ci
-      - run: tsc && vite build
+      - run: npx tsc && npx vite build
       - run: node --test
 
   test-e2e:
@@ -49,5 +49,5 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: tsc && vite build
+      - run: npx tsc && npx vite build
       - run: npx playwright test
