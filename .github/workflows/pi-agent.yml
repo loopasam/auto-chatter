@@ -20,6 +20,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.AGENT_PAT }}
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
@@ -79,6 +81,7 @@ jobs:
           ISSUE_NUMBER: ${{ steps.issue.outputs.number }}
           ISSUE_TITLE: ${{ steps.issue.outputs.title }}
         with:
+          github-token: ${{ secrets.AGENT_PAT }}
           script: |
             const fn = require('./.github/scripts/create-pr.js');
             await fn({ github, context, core });
@@ -125,6 +128,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ steps.pr.outputs.branch }}
+          token: ${{ secrets.AGENT_PAT }}
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
