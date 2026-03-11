@@ -16,6 +16,14 @@ export async function createApp(): Promise<express.Express> {
     res.json({ status: 'ok', uptime: process.uptime() });
   });
 
+  app.get('/api/products', (_req, res) => {
+    res.json([
+      { id: 1, name: 'Basic Plan', description: 'Get started with auto-chatter.', price: 9.99 },
+      { id: 2, name: 'Pro Plan', description: 'Unlimited messages and priority support.', price: 29.99 },
+      { id: 3, name: 'Enterprise Plan', description: 'Custom integrations and dedicated account manager.', price: 99.99 },
+    ]);
+  });
+
   if (isDevMode()) {
     // Dev: use Vite's dev server as middleware (HMR, TS transform)
     const { createServer: createViteServer } = await import('vite');

@@ -18,6 +18,9 @@ function RootLayout() {
           </Button>
           <Separator orientation="vertical" className="h-6" />
           <Button variant="ghost" size="sm" asChild>
+            <Link to="/products">Products</Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild>
             <Link to="/about">About</Link>
           </Button>
         </nav>

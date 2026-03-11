@@ -58,4 +58,25 @@ describe('web server', () => {
     const res = await fetch(`${baseUrl}/health`);
     assert.match(res.headers.get('content-type'), /application\/json/);
   });
+
+  it('GET /api/products returns 200 with JSON array', async () => {
+    const res = await fetch(`${baseUrl}/api/products`);
+    assert.equal(res.status, 200);
+    assert.match(res.headers.get('content-type'), /application\/json/);
+    const body = await res.json();
+    assert.ok(Array.isArray(body), 'response should be an array');
+    assert.ok(body.length > 0, 'should have at least one product');
+  });
+
+  it('each product has id, name, description, and price', async () => {
+    const res = await fetch(`${baseUrl}/api/products`);
+    const products = await res.json();
+    for (const product of products) {
+      assert.equal(typeof product.id, 'number');
+      assert.equal(typeof product.name, 'string');
+      assert.equal(typeof product.description, 'string');
+      assert.equal(typeof product.price, 'number');
+      assert.ok(product.price > 0);
+    }
+  });
 });
