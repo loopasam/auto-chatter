@@ -16,7 +16,7 @@ test('home page renders auto-chatter heading via React', async ({ page }) => {
 
 test('home page fetches and displays server status', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('text=Status:')).toBeVisible();
+  await expect(page.locator('text=Server Status')).toBeVisible();
   await expect(page.locator('text=Uptime:')).toBeVisible();
 });
 
