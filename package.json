@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "DEV=1 tsx watch src/server.ts",
+    "dev": "cross-env DEV=1 tsx watch src/server.ts",
     "build": "tsc && vite build",
     "build:client": "vite build",
     "start": "node dist/server.js",
@@ -21,6 +21,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.4",
     "agent-browser": "^0.17.1",
+    "cross-env": "^10.1.0",
     "tailwindcss": "^4.2.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
