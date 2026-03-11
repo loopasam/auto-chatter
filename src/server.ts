@@ -1,28 +1,23 @@
 import http, { IncomingMessage, ServerResponse } from 'node:http';
 import { URL } from 'node:url';
+import fs from 'node:fs';
+import path from 'node:path';
+
+const CLIENT_DIR = path.resolve(__dirname, '..', 'client', 'dist');
+
+const MIME_TYPES: Record<string, string> = {
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'application/javascript',
+  '.css': 'text/css',
+  '.json': 'application/json',
+  '.png': 'image/png',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon',
+};
 
 type RouteHandler = (req: IncomingMessage, res: ServerResponse) => void;
 
-const routes: Record<string, RouteHandler> = {
-  '/': (_req, res) => {
-    sendHtml(res, 200, `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>auto-chatter</title>
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 4rem auto; padding: 0 1rem; color: #333; }
-    h1 { margin-bottom: 0.25rem; }
-    p { color: #666; }
-  </style>
-</head>
-<body>
-  <h1>auto-chatter</h1>
-  <p>Welcome to auto-chatter.</p>
-</body>
-</html>`);
-  },
+const apiRoutes: Record<string, RouteHandler> = {
   '/health': (_req, res) => {
     sendJson(res, 200, { status: 'ok', uptime: process.uptime() });
   },
@@ -38,15 +33,47 @@ function sendJson(res: ServerResponse, statusCode: number, data: unknown): void 
   res.end(JSON.stringify(data));
 }
 
+function serveStaticFile(filePath: string, res: ServerResponse): boolean {
+  if (!fs.existsSync(filePath)) return false;
+
+  const ext = path.extname(filePath);
+  const contentType = MIME_TYPES[ext] ?? 'application/octet-stream';
+  const content = fs.readFileSync(filePath);
+  res.writeHead(200, { 'Content-Type': contentType });
+  res.end(content);
+  return true;
+}
+
 function handleRequest(req: IncomingMessage, res: ServerResponse): void {
   const url = new URL(req.url ?? '/', `http://${req.headers.host}`);
-  const handler = routes[url.pathname];
 
-  if (handler) {
-    handler(req, res);
-  } else {
-    sendJson(res, 404, { error: 'Not Found' });
+  // API routes take priority
+  const apiHandler = apiRoutes[url.pathname];
+  if (apiHandler) {
+    apiHandler(req, res);
+    return;
   }
+
+  // Try serving a static file from client/dist
+  if (url.pathname !== '/') {
+    const filePath = path.join(CLIENT_DIR, url.pathname);
+    // Prevent directory traversal
+    if (filePath.startsWith(CLIENT_DIR) && serveStaticFile(filePath, res)) {
+      return;
+    }
+  }
+
+  // Serve index.html for /
+  if (url.pathname === '/') {
+    const indexPath = path.join(CLIENT_DIR, 'index.html');
+    if (fs.existsSync(indexPath)) {
+      const html = fs.readFileSync(indexPath, 'utf-8');
+      sendHtml(res, 200, html);
+      return;
+    }
+  }
+
+  sendJson(res, 404, { error: 'Not Found' });
 }
 
 export function createServer(): http.Server {

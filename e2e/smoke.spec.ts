@@ -1,11 +1,17 @@
 import { test, expect } from '@playwright/test';
 
-test('GET / returns HTML home page', async ({ request }) => {
+test('GET / returns HTML page with app-shell component', async ({ request }) => {
   const res = await request.get('/');
   expect(res.status()).toBe(200);
   expect(res.headers()['content-type']).toContain('text/html');
   const body = await res.text();
-  expect(body).toContain('<h1>auto-chatter</h1>');
+  expect(body).toContain('<app-shell>');
+});
+
+test('home page renders auto-chatter heading via Lit', async ({ page }) => {
+  await page.goto('/');
+  const heading = page.locator('app-shell h1');
+  await expect(heading).toHaveText('auto-chatter');
 });
 
 test('GET /health returns ok', async ({ request }) => {
