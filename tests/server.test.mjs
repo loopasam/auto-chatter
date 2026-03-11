@@ -87,6 +87,8 @@ describe('web server', () => {
     const { readFileSync } = await import('node:fs');
     const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf-8'));
     assert.equal(body.version, pkg.version);
+    assert.equal(typeof body.name, 'string');
+    assert.equal(body.name, pkg.name);
   });
 
   it('GET /unknown returns HTML (SPA fallback)', async () => {

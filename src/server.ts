@@ -24,7 +24,7 @@ export async function createApp(): Promise<express.Express> {
   app.get('/api/version', (_req, res) => {
     const pkgPath = path.resolve(__dirname, '..', 'package.json');
     const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
-    res.json({ version: pkg.version });
+    res.json({ version: pkg.version, name: pkg.name });
   });
 
   app.get('/api/products', (_req, res) => {
