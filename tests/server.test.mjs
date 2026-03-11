@@ -77,6 +77,22 @@ describe('web server', () => {
     assert.deepEqual(body, { pong: true });
   });
 
+  it('GET /api/version returns 200 with version from package.json', async () => {
+    const res = await fetch(`${baseUrl}/api/version`);
+    assert.equal(res.status, 200);
+    assert.match(res.headers.get('content-type'), /application\/json/);
+    const body = await res.json();
+    assert.equal(typeof body.version, 'string');
+    // Read the actual version from package.json
+    const { readFileSync } = await import('node:fs');
+    const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf-8'));
+    assert.equal(body.version, pkg.version);
+    assert.equal(typeof body.name, 'string');
+    assert.equal(body.name, pkg.name);
+    assert.equal(typeof body.node, 'string');
+    assert.equal(body.node, process.version);
+  });
+
   it('GET /unknown returns HTML (SPA fallback)', async () => {
     const res = await fetch(`${baseUrl}/unknown`);
     assert.equal(res.status, 200);
