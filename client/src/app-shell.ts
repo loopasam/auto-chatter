@@ -1,6 +1,10 @@
+import '@awesome.me/webawesome/dist/styles/webawesome.css';
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import Navigo from 'navigo';
+import '@awesome.me/webawesome/dist/components/button/button.js';
+import '@awesome.me/webawesome/dist/components/divider/divider.js';
+import '@awesome.me/webawesome/dist/components/icon/icon.js';
 import './pages/home-page.js';
 import './pages/products-page.js';
 import './pages/about-page.js';
@@ -10,23 +14,30 @@ import './pages/demo-page.js';
 export class AppShell extends LitElement {
   static styles = css`
     :host { display: block; }
-    nav {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      padding: 1rem 2rem;
-      border-bottom: 1px solid #eee;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    nav a { font-size: 0.9rem; color: #666; }
-    nav a:hover { color: #333; }
-    nav a.active { color: #333; font-weight: 600; }
-    .logo { font-size: 1.1rem; font-weight: 700; color: #333 !important; }
     main {
       max-width: 800px;
       margin: 0 auto;
       padding: 2rem;
+    }
+    .nav-bar {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: var(--wa-space-2xs);
+    }
+    .logo {
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    wa-button[data-active] {
+      font-weight: 600;
     }
   `;
 
@@ -54,17 +65,38 @@ export class AppShell extends LitElement {
     this._router.navigate(path);
   }
 
+  private _navButton(label: string, path: string, page: string) {
+    const isActive = this._page === page;
+    return html`
+      <wa-button
+        appearance="plain"
+        size="small"
+        href=${path}
+        ?data-active=${isActive}
+        @click=${(e: Event) => this._navigate(e, path)}
+      >${label}</wa-button>
+    `;
+  }
+
   render() {
     return html`
-      <nav>
-        <a href="/" class="logo" @click=${(e: Event) => this._navigate(e, '/')}>auto-chatter</a>
-        <a href="/products" class=${this._page === 'products' ? 'active' : ''}
-           @click=${(e: Event) => this._navigate(e, '/products')}>Products</a>
-        <a href="/about" class=${this._page === 'about' ? 'active' : ''}
-           @click=${(e: Event) => this._navigate(e, '/about')}>About</a>
-        <a href="/demo" class=${this._page === 'demo' ? 'active' : ''}
-           @click=${(e: Event) => this._navigate(e, '/demo')}>Demo</a>
+      <nav class="nav-bar">
+        <wa-button
+          appearance="plain"
+          href="/"
+          class="logo"
+          @click=${(e: Event) => this._navigate(e, '/')}
+        >
+          <wa-icon name="message" slot="prefix"></wa-icon>
+          auto-chatter
+        </wa-button>
+        <div class="nav-links">
+          ${this._navButton('Products', '/products', 'products')}
+          ${this._navButton('About', '/about', 'about')}
+          ${this._navButton('Demo', '/demo', 'demo')}
+        </div>
       </nav>
+      <wa-divider></wa-divider>
       <main>
         ${this._renderPage()}
       </main>

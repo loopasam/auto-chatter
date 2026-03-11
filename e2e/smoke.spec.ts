@@ -34,11 +34,11 @@ test('about page renders', async ({ page }) => {
 
 test('navigation between pages works', async ({ page }) => {
   await page.goto('/');
-  await page.click('a[href="/products"]');
+  await page.getByText('Products').click();
   await expect(page.locator('h1')).toHaveText('Products');
-  await page.click('a[href="/about"]');
+  await page.getByText('About').click();
   await expect(page.locator('h1')).toHaveText('About');
-  await page.click('a[href="/"]');
+  await page.getByText('auto-chatter').first().click();
   await expect(page.locator('h1')).toHaveText('auto-chatter');
 });
 
