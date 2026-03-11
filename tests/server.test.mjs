@@ -21,11 +21,17 @@ describe('web server', () => {
     await new Promise((resolve) => server.close(resolve));
   });
 
-  it('GET / returns 200 with welcome message', async () => {
+  it('GET / returns 200 with HTML content-type', async () => {
     const res = await fetch(`${baseUrl}/`);
     assert.equal(res.status, 200);
-    const body = await res.json();
-    assert.equal(body.message, 'Welcome to auto-chatter');
+    assert.match(res.headers.get('content-type'), /text\/html/);
+  });
+
+  it('GET / returns an HTML page with auto-chatter heading', async () => {
+    const res = await fetch(`${baseUrl}/`);
+    const body = await res.text();
+    assert.match(body, /<!doctype html>/i);
+    assert.match(body, /<h1>.*auto-chatter.*<\/h1>/i);
   });
 
   it('GET /health returns 200 with status ok', async () => {
@@ -49,8 +55,8 @@ describe('web server', () => {
     assert.equal(body.error, 'Not Found');
   });
 
-  it('responds with JSON content-type on all routes', async () => {
-    for (const path of ['/', '/health', '/nonexistent']) {
+  it('responds with JSON content-type on API routes', async () => {
+    for (const path of ['/health', '/nonexistent']) {
       const res = await fetch(`${baseUrl}${path}`);
       assert.match(res.headers.get('content-type'), /application\/json/);
     }

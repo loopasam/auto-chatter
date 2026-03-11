@@ -5,12 +5,33 @@ type RouteHandler = (req: IncomingMessage, res: ServerResponse) => void;
 
 const routes: Record<string, RouteHandler> = {
   '/': (_req, res) => {
-    sendJson(res, 200, { message: 'Welcome to auto-chatter' });
+    sendHtml(res, 200, `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>auto-chatter</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 4rem auto; padding: 0 1rem; color: #333; }
+    h1 { margin-bottom: 0.25rem; }
+    p { color: #666; }
+  </style>
+</head>
+<body>
+  <h1>auto-chatter</h1>
+  <p>Welcome to auto-chatter.</p>
+</body>
+</html>`);
   },
   '/health': (_req, res) => {
     sendJson(res, 200, { status: 'ok', uptime: process.uptime() });
   },
 };
+
+function sendHtml(res: ServerResponse, statusCode: number, html: string): void {
+  res.writeHead(statusCode, { 'Content-Type': 'text/html; charset=utf-8' });
+  res.end(html);
+}
 
 function sendJson(res: ServerResponse, statusCode: number, data: unknown): void {
   res.writeHead(statusCode, { 'Content-Type': 'application/json' });
