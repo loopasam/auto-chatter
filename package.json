@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "dev": "DEV=1 tsx watch src/server.ts",
     "build": "tsc && vite build",
     "build:client": "vite build",
     "start": "node dist/server.js",
@@ -16,6 +17,7 @@
     "@types/express": "^5.0.6",
     "@types/node": "^25.4.0",
     "agent-browser": "^0.17.1",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vite": "^7.3.1"
   },

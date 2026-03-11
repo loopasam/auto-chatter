@@ -7,7 +7,7 @@ describe('web server', () => {
   let baseUrl;
 
   before(async () => {
-    server = createServer();
+    server = await createServer();
     await new Promise((resolve) => {
       server.listen(0, () => {
         const { port } = server.address();
