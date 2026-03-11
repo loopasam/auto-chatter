@@ -1,4 +1,5 @@
 import http from 'node:http';
+import fs from 'node:fs';
 import path from 'node:path';
 import express from 'express';
 
@@ -18,6 +19,12 @@ export async function createApp(): Promise<express.Express> {
 
   app.get('/api/ping', (_req, res) => {
     res.json({ pong: true });
+  });
+
+  app.get('/api/version', (_req, res) => {
+    const pkgPath = path.resolve(__dirname, '..', 'package.json');
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+    res.json({ version: pkg.version });
   });
 
   app.get('/api/products', (_req, res) => {
