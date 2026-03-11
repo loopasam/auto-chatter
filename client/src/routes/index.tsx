@@ -1,5 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 export const Route = createFileRoute('/')({
   component: HomePage,
@@ -16,20 +24,34 @@ function HomePage() {
   });
 
   return (
-    <div className="space-y-4 py-8">
-      <h1 className="text-4xl font-bold tracking-tight">auto-chatter</h1>
-      <p className="text-muted-foreground">Welcome to auto-chatter.</p>
-      <div className="rounded-lg border p-4">
-        <h2 className="text-sm font-medium text-muted-foreground">Server Status</h2>
-        {isLoading && <p className="text-sm">Loading...</p>}
-        {error && <p className="text-sm text-destructive">Error fetching status</p>}
-        {data && (
-          <p className="text-sm">
-            Status: <span className="font-semibold">{data.status}</span> · Uptime:{' '}
-            <span className="font-semibold">{Math.floor(data.uptime)}s</span>
-          </p>
-        )}
+    <div className="flex flex-col gap-6 py-8">
+      <div>
+        <h1 className="text-4xl font-bold tracking-tight">auto-chatter</h1>
+        <p className="text-muted-foreground mt-2">Welcome to auto-chatter.</p>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Server Status</CardTitle>
+          <CardDescription>Live status from the backend API</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading && (
+            <p className="text-sm text-muted-foreground">Loading...</p>
+          )}
+          {error && (
+            <Badge variant="destructive">Error fetching status</Badge>
+          )}
+          {data && (
+            <div className="flex items-center gap-3">
+              <Badge variant="secondary">{data.status}</Badge>
+              <span className="text-sm text-muted-foreground">
+                Uptime: {Math.floor(data.uptime)}s
+              </span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -1,0 +1,8 @@
+{
+  "name": "auto-chatter-client",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "radix-ui": "^1.4.3"
+  }
+}
