@@ -27,11 +27,11 @@ describe('web server', () => {
     assert.match(res.headers.get('content-type'), /text\/html/);
   });
 
-  it('GET / returns HTML page containing app-shell component', async () => {
+  it('GET / returns HTML page with root div and React entry', async () => {
     const res = await fetch(`${baseUrl}/`);
     const body = await res.text();
     assert.match(body, /<!doctype html>/i);
-    assert.match(body, /<app-shell>/i);
+    assert.match(body, /id="root"/);
   });
 
   it('GET /health returns 200 with status ok', async () => {
