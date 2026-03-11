@@ -66,15 +66,15 @@ test('demo page renders Shoelace components', async ({ page }) => {
 
 test('demo page has a multi-select dropdown', async ({ page }) => {
   await page.goto('/demo');
-  const select = page.locator('sl-select');
+  const select = page.locator('wa-select');
   await expect(select).toBeVisible();
 });
 
-test('demo page has alert, dialog, and rating components', async ({ page }) => {
+test('demo page has callout, dialog, and rating components', async ({ page }) => {
   await page.goto('/demo');
-  await expect(page.locator('sl-alert')).toBeVisible();
-  await expect(page.locator('sl-rating')).toBeVisible();
-  await expect(page.locator('sl-button:has-text("Open Dialog")')).toBeVisible();
+  await expect(page.locator('wa-callout')).toBeVisible();
+  await expect(page.locator('wa-rating')).toBeVisible();
+  await expect(page.locator('wa-button:has-text("Open Dialog")')).toBeVisible();
 });
 
 test('demo page navigable from nav', async ({ page }) => {
